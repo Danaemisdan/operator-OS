@@ -1,0 +1,82 @@
+.titlebar {
+  height: var(--titlebar-height);
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  padding: 0 16px 0 0;
+  -webkit-app-region: drag;
+  position: relative;
+  z-index: 1000;
+  flex-shrink: 0;
+}
+
+/* macOS: space for traffic lights */
+.titlebar-traffic-lights {
+  width: 72px;
+  flex-shrink: 0;
+  -webkit-app-region: no-drag;
+}
+
+.titlebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  -webkit-app-region: no-drag;
+  flex-shrink: 0;
+}
+
+.titlebar-logo-icon {
+  font-size: 16px;
+  filter: drop-shadow(0 0 6px var(--color-accent));
+}
+
+.titlebar-logo-text {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  background: linear-gradient(135deg, #fff 0%, var(--color-accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.titlebar-badge {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--color-accent);
+  background: var(--color-accent-soft);
+  padding: 2px 5px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-accent-soft);
+  -webkit-text-fill-color: var(--color-accent);
+}
+
+.titlebar-drag {
+  flex: 1;
+  height: 100%;
+  -webkit-app-region: drag;
+}
+
+/* Windows controls */
+.titlebar-win-controls {
+  display: flex;
+  -webkit-app-region: no-drag;
+}
+
+.win-btn {
+  width: 46px;
+  height: var(--titlebar-height);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--color-text-2);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.win-btn:hover { background: var(--color-surface-2); color: var(--color-text); }
+.win-close:hover { background: var(--color-error) !important; color: #fff !important; }

@@ -1,0 +1,94 @@
+{
+  "version": "1",
+  "author": "your-name",
+  "description": "My custom LinkedIn automation skills",
+
+  "skills": [
+
+    {
+      "id": "linkedin.follow_user",
+      "platform": "linkedin",
+      "name": "Follow LinkedIn User",
+      "description": "Follows a LinkedIn user from their profile. Navigate to profile first or provide URL.",
+      "inputs": [
+        { "name": "profileUrl", "type": "string", "description": "LinkedIn profile URL (optional — uses current page if omitted)", "required": false, "default": "" }
+      ],
+      "outputs": ["followed"],
+      "steps": [
+        { "action": "if", "condition": "{profileUrl}", "then": [
+          { "action": "navigate", "url": "{profileUrl}" },
+          { "action": "wait", "ms": 2500 }
+        ]},
+        { "action": "click", "selector": "button[aria-label^='Follow']", "optional": true },
+        { "action": "wait", "ms": 1000 },
+        { "action": "log", "message": "Followed ✓", "level": "success" },
+        { "action": "set", "key": "followed", "value": true }
+      ]
+    },
+
+    {
+      "id": "linkedin.bulk_connect",
+      "platform": "linkedin",
+      "name": "Bulk LinkedIn Connection Requests",
+      "description": "Searches LinkedIn by keyword and sends connection requests to multiple people with an optional note.",
+      "inputs": [
+        { "name": "searchQuery", "type": "string", "description": "Who to search for, e.g. 'AI startup founder Lagos'", "required": true },
+        { "name": "limit",       "type": "number", "description": "Max connection requests to send (default 5)", "required": false, "default": 5 },
+        { "name": "note",        "type": "string", "description": "Optional personalized note (max 300 chars). Leave empty to skip.", "required": false, "default": "" }
+      ],
+      "outputs": ["sent", "profiles"],
+      "steps": [
+        { "action": "navigate", "url": "https://www.linkedin.com/search/results/people/?keywords={searchQuery}" },
+        { "action": "wait", "ms": 3000 },
+        { "action": "log", "message": "Searching LinkedIn for: {searchQuery}", "level": "action" },
+        { "action": "extract", "selector": ".entity-result__title-text a", "multiple": true, "output": "profiles", "limit": "{limit}" },
+        { "action": "log", "message": "Found {limit} profiles — sending requests...", "level": "info" },
+        {
+          "action": "foreach",
+          "items": "{profiles}",
+          "as": "person",
+          "do": [
+            { "action": "navigate", "url": "{person.href}" },
+            { "action": "wait", "ms": 2000 },
+            { "action": "click", "selector": "button[aria-label^='Connect']", "optional": true },
+            { "action": "wait", "ms": 800 },
+            { "action": "if", "condition": "{note}", "then": [
+              { "action": "click", "selector": "button[aria-label='Add a note']" },
+              { "action": "wait", "ms": 500 },
+              { "action": "type", "selector": "textarea#custom-message", "value": "{note}", "human": true }
+            ]},
+            { "action": "click", "selector": "button[aria-label='Send now']", "optional": true },
+            { "action": "log", "message": "Request sent to {person.text} ✓", "level": "success" }
+          ]
+        },
+        { "action": "set", "key": "sent", "value": true }
+      ]
+    },
+
+    {
+      "id": "linkedin.scrape_search_results",
+      "platform": "linkedin",
+      "name": "Scrape LinkedIn Search Results",
+      "description": "Runs a LinkedIn people search and returns a list of profiles with name, title, and URL.",
+      "inputs": [
+        { "name": "query", "type": "string", "description": "Search keywords, e.g. 'fintech founder Nigeria'", "required": true },
+        { "name": "limit", "type": "number", "description": "How many profiles to return (default 20)", "required": false, "default": 20 }
+      ],
+      "outputs": ["profiles"],
+      "steps": [
+        { "action": "navigate", "url": "https://www.linkedin.com/search/results/people/?keywords={query}" },
+        { "action": "wait", "ms": 3000 },
+        { "action": "scroll", "direction": "down", "amount": 2 },
+        { "action": "wait", "ms": 1000 },
+        { "action": "extract",
+          "selector": ".entity-result__item",
+          "multiple": true,
+          "output": "profiles",
+          "limit": "{limit}"
+        },
+        { "action": "log", "message": "Scraped profiles ✓", "level": "success" }
+      ]
+    }
+
+  ]
+}

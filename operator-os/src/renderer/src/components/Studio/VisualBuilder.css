@@ -1,0 +1,362 @@
+.visual-builder-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: #1a1a1a;
+  overflow: hidden;
+}
+
+.graph-layout {
+  display: flex;
+  flex: 1;
+  height: calc(100% - 60px);
+}
+
+.graph-canvas-container {
+  flex: 1;
+  height: 100%;
+}
+
+.properties-sidebar {
+  width: 320px;
+  background-color: var(--color-surface);
+  border-left: 1px solid var(--color-border);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+}
+
+.sidebar-title {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-primary);
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 12px;
+}
+
+.row-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.border-red {
+  border-color: rgba(248, 113, 113, 0.3) !important;
+  color: #f87171 !important;
+}
+
+/* React Flow Custom Nodes */
+
+.graph-node {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  width: 200px;
+  font-size: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.graph-node.selected {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5) !important;
+}
+
+.graph-node.action-node {
+  border-color: rgba(167, 139, 250, 0.3);
+}
+
+.graph-node.condition-node {
+  border-color: rgba(248, 113, 113, 0.4);
+}
+
+/* ── Trigger / Start node types ───────────────────── */
+.graph-node.start-node         { border-color: rgba(52, 211, 153, 0.5); width: 220px; }
+.graph-node.event-loop-node    { border-color: rgba(34, 211, 238, 0.5); width: 220px; }
+.graph-node.event-timer-node   { border-color: rgba(251, 146, 60, 0.5); width: 220px; }
+.graph-node.event-scheduler-node { border-color: rgba(139, 92, 246, 0.5); width: 240px; }
+
+.start-header          { background: linear-gradient(135deg, rgba(16,185,129,0.2), rgba(5,150,105,0.1)) !important; }
+.event-loop-header     { background: linear-gradient(135deg, rgba(6,182,212,0.2), rgba(8,145,178,0.1)) !important; }
+.event-timer-header    { background: linear-gradient(135deg, rgba(234,88,12,0.2), rgba(194,65,12,0.1)) !important; }
+.event-scheduler-header{ background: linear-gradient(135deg, rgba(109,40,217,0.2), rgba(91,33,182,0.1)) !important; }
+
+.trigger-badge {
+  margin-left: auto;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(52, 211, 153, 0.2);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.3);
+}
+.trigger-badge-cyan   { background: rgba(34,211,238,0.2); color: #22d3ee; border-color: rgba(34,211,238,0.3); }
+.trigger-badge-orange { background: rgba(251,146,60,0.2); color: #fb923c; border-color: rgba(251,146,60,0.3); }
+.trigger-badge-violet { background: rgba(139,92,246,0.2); color: #a78bfa;  border-color: rgba(139,92,246,0.3); }
+
+
+.node-header {
+  padding: 8px 12px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid var(--color-border);
+  border-radius: 8px 8px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.node-body {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.input-group label {
+  font-size: 10px;
+  color: var(--color-text-dim);
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.node-label {
+  color: var(--color-text);
+}
+
+.node-sublabel {
+  color: var(--color-text-dim);
+  font-size: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: 'Fira Code', monospace;
+}
+
+.handles-bottom-row {
+  display: flex;
+  border-top: 1px solid var(--color-border);
+  background-color: rgba(0,0,0,0.1);
+  border-radius: 0 0 8px 8px;
+}
+
+.handle-container {
+  flex: 1;
+  text-align: center;
+  padding: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  position: relative;
+  color: var(--color-text-dim);
+}
+
+/* Ensure handle dots rendered inside containers are centered via CSS, not JS */
+.handle-container .react-flow__handle {
+  position: absolute !important;
+  bottom: -6px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+}
+
+.handle-container:first-child {
+  border-right: 1px solid var(--color-border);
+  color: #4ade80;
+}
+
+.handle-container:last-child {
+  color: #f87171;
+}
+
+/* Handle dots */
+.handle-top, .handle-bottom, .handle-true, .handle-false {
+  width: 12px !important;
+  height: 12px !important;
+  border: 2px solid #1a1a1a !important;
+  border-radius: 50% !important;
+}
+
+.handle-top {
+  background-color: #a78bfa !important;
+  top: -6px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+}
+.handle-bottom {
+  background-color: #a78bfa !important;
+  bottom: -6px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+}
+.handle-true {
+  background-color: #4ade80 !important;
+  bottom: -6px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+}
+.handle-false {
+  background-color: #f87171 !important;
+  bottom: -6px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+}
+
+/* Reusing old styles for sidebar elements */
+.step-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.visual-input {
+  background-color: rgba(0,0,0,0.2);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  padding: 8px;
+  border-radius: 6px;
+  outline: none;
+}
+.visual-input:focus { border-color: var(--color-primary); }
+.add-step-btn {
+  background: none;
+  border: 1px dashed var(--color-border);
+  color: var(--color-text);
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.add-step-btn:hover { background-color: rgba(255,255,255,0.05); }
+
+.node-input, .node-type-select {
+  width: 100%;
+  background-color: var(--color-surface-hover);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  color: var(--color-text);
+  font-size: 11px;
+  padding: 4px 6px;
+  margin-top: 6px;
+  outline: none;
+}
+
+.node-type-select {
+  background-color: transparent;
+  border: none;
+  font-weight: bold;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  appearance: none;
+}
+.node-type-select:focus {
+  outline: none;
+}
+
+.btn-test-flow {
+  background-color: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+  margin-left: auto;
+}
+.btn-test-flow:hover {
+  filter: brightness(1.2);
+}
+
+.step-action-select {
+  background-color: rgba(0,0,0,0.2);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  padding: 8px;
+  border-radius: 6px;
+}
+
+/* Disabled + running state for Test Flow button */
+.btn-test-flow:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  animation: pulse-btn 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse-btn {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.4); }
+}
+
+/* Live Agent Log Overlay */
+.test-log-overlay {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  width: 380px;
+  max-height: 400px;
+  background-color: rgba(15, 15, 20, 0.95);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  z-index: 200;
+  backdrop-filter: blur(12px);
+  overflow: hidden;
+}
+
+.test-log-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text);
+  background-color: rgba(167, 139, 250, 0.08);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.test-log-close {
+  background: none;
+  border: none;
+  color: var(--color-text-dim);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0 4px;
+}
+.test-log-close:hover { color: var(--color-text); }
+
+.test-log-body {
+  padding: 10px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 340px;
+}
+
+.test-log-entry {
+  display: flex;
+  gap: 8px;
+  font-size: 11px;
+  font-family: 'Fira Code', monospace;
+  line-height: 1.5;
+  color: var(--color-text);
+}
+
+.log-icon { flex-shrink: 0; width: 16px; }
+
+.test-log-entry.log-success { color: #4ade80; }
+.test-log-entry.log-error { color: #f87171; }
+.test-log-entry.log-thinking { color: #a78bfa; }
+.test-log-entry.log-action { color: #60a5fa; }
