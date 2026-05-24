@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import './ProfileWizard.css'
+import LiquidMetalButton from '../UI/LiquidMetalButton'
 
 const api = (window as any).electronAPI
 
@@ -77,9 +78,9 @@ export default function ProfileWizard({ chromeProfiles, onComplete }: Props) {
                 </div>
               ))}
             </div>
-            <button className="btn btn-primary wizard-cta" onClick={() => setStep('import')}>
-              Get Started →
-            </button>
+            <LiquidMetalButton className="wizard-cta" onClick={() => setStep('import')}>
+              Import Workflows
+            </LiquidMetalButton>
           </div>
         )}
 
@@ -148,13 +149,13 @@ export default function ProfileWizard({ chromeProfiles, onComplete }: Props) {
             )}
 
             {!importing && (
-              <button
-                className="btn btn-primary wizard-cta"
+              <LiquidMetalButton
+                className="wizard-cta"
                 onClick={handleImport}
                 disabled={!selectedProfile && !skipImport}
               >
-                {selectedProfile ? 'Import & Continue →' : 'Continue →'}
-              </button>
+                {selectedProfile ? 'Import & Continue' : 'Continue'}
+              </LiquidMetalButton>
             )}
           </div>
         )}
@@ -199,9 +200,9 @@ export default function ProfileWizard({ chromeProfiles, onComplete }: Props) {
             <p className="wizard-note">
               Models download once and run forever locally. This may take a few minutes.
             </p>
-            <button className="btn btn-primary wizard-cta" onClick={() => setStep('ready')}>
-              Continue →
-            </button>
+            <LiquidMetalButton className="wizard-cta" onClick={() => setStep('ready')}>
+              Continue
+            </LiquidMetalButton>
           </div>
         )}
 
@@ -214,9 +215,9 @@ export default function ProfileWizard({ chromeProfiles, onComplete }: Props) {
               Your autonomous operator is online and ready to work.
               Open a platform from the sidebar and tell it what to do.
             </p>
-            <button className="btn btn-primary wizard-cta" onClick={onComplete}>
-              Open Browser ⚡
-            </button>
+            <LiquidMetalButton className="wizard-cta" onClick={onComplete}>
+              Launch Workspace
+            </LiquidMetalButton>
           </div>
         )}
       </div>

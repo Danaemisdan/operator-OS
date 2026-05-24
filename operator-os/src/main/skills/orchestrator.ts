@@ -13,6 +13,8 @@ import { WebContentsView } from 'electron'
 import { LlamaClient } from '../llama-client'
 import { SKILL_REGISTRY, getSkill, SkillContext, humanWait } from './registry'
 import { tasksDB } from '../tasks-db'
+import { queryGraph, addNode, addEdge } from '../knowledge-graph'
+import { scheduleTask } from '../scheduler'
 
 export interface ActivityEvent {
   type: 'action' | 'success' | 'error' | 'thinking' | 'info'
@@ -102,28 +104,46 @@ export class Orchestrator {
     this.chatHistory.push({ role: 'user', content: userMessage })
     if (this.chatHistory.length > 10) this.chatHistory = this.chatHistory.slice(-10)
 
-    this.emit(`Classifying intent...`, 'thinking')
+    this.emit(`Classifying intent & consulting memory...`, 'thinking')
 
-    // Build the manifest of available graph workflows
+    // Quick memory lookup
+    let memoryContext = "No memory found."
+    try {
+      const mem = await queryGraph(userMessage)
+      if (mem && mem.nodes.length > 0) {
+        memoryContext = JSON.stringify(mem)
+      }
+    } catch {}
+
     const workflows = SKILL_REGISTRY.map(s => `- ${s.id}: ${s.description}`).join('\n')
 
-    const prompt = `You are a strict Graph Workflow Router.
-The user has requested a task. You have access to the following predefined graph workflows:
+    const prompt = `You are the core autonomous brain of Operator OS.
+You must analyze the user's request. 
+
+AVAILABLE WORKFLOWS:
 ${workflows || 'No workflows available.'}
 
-Analyze the user's request. Does it match the intent of any available workflow?
-If it matches, return the workflow ID and any required input variables you can extract from the user's prompt.
-If no workflow matches, or the request is just casual chat, set "intent": "CHAT" and reply conversationally.
+MEMORY CONTEXT:
+${memoryContext}
 
-CRITICAL: Do NOT invent workflows. Only use the IDs provided.
+CAPABILITIES:
+1. "CHAT": Just conversational reply.
+2. "QUESTION": The user asked for a vague or complex outreach/task, and you MUST ask clarifying questions before proceeding. (e.g. "Send an email to John" -> Ask "What should I say to John?").
+3. "SCHEDULE": The user wants to schedule a task or set a reminder for the future.
+4. "MEMORY_STORE": The user gave you a fact or contact info to remember.
+5. "TASK": The user's request is clear, unambiguous, and matches an AVAILABLE WORKFLOW exactly.
+
+CRITICAL: Do NOT invent workflows. Only use the IDs provided. If a workflow requires inputs (like 'targetUser', 'message') and the user hasn't provided them, you MUST output "QUESTION" and ask them.
 
 Respond ONLY with this JSON format:
 {
-  "intent": "CHAT" or "TASK",
+  "intent": "CHAT" | "QUESTION" | "SCHEDULE" | "MEMORY_STORE" | "TASK",
   "workflowId": "If TASK, the ID of the matched workflow",
-  "inputs": { "key": "value" }, // extracted variables
-  "reply": "If CHAT, a brief conversational response.",
-  "planExplanation": "If TASK, a human-readable explanation of what you are about to run."
+  "inputs": { "key": "value" }, // extracted variables for TASK or SCHEDULE
+  "reply": "Conversational response, clarifying question, or confirmation.",
+  "planExplanation": "If TASK, a human-readable explanation of what you are about to run.",
+  "scheduleDelayMs": 0, // If SCHEDULE, delay in milliseconds
+  "memoryData": { "label": "", "properties": {} } // If MEMORY_STORE
 }`
 
     const rawResponse = await this.llama.chat([
@@ -131,7 +151,7 @@ Respond ONLY with this JSON format:
       ...this.chatHistory,
       { role: 'user', content: userMessage },
       { role: 'system', content: 'Output ONLY valid JSON.' }
-    ], { maxTokens: 400, temperature: 0.1, response_format: { type: 'json_object' } })
+    ], { maxTokens: 800, temperature: 0.1, response_format: { type: 'json_object' } })
 
     let data: any = {}
     try {
@@ -141,6 +161,28 @@ Respond ONLY with this JSON format:
       }
     } catch {
       data = { intent: 'CHAT', reply: "I didn't quite catch that." }
+    }
+
+    if (data.intent === 'QUESTION') {
+      this.chatHistory.push({ role: 'assistant', content: data.reply })
+      return { taskId, reply: data.reply }
+    }
+
+    if (data.intent === 'SCHEDULE') {
+      const delay = data.scheduleDelayMs || 60000 // default 1 min
+      await scheduleTask(userMessage, delay)
+      const reply = data.reply || `Scheduled! I will run that in ${Math.round(delay/60000)} minutes.`
+      this.chatHistory.push({ role: 'assistant', content: reply })
+      return { taskId, reply }
+    }
+
+    if (data.intent === 'MEMORY_STORE') {
+      if (data.memoryData) {
+        await addNode({ label: data.memoryData.label || 'Fact', properties: data.memoryData.properties || {} })
+      }
+      const reply = data.reply || "I've saved that to my memory graph."
+      this.chatHistory.push({ role: 'assistant', content: reply })
+      return { taskId, reply }
     }
 
     if (data.intent === 'CHAT' || !data.workflowId) {

@@ -6,11 +6,16 @@
 /* ─── Design Tokens ─────────────────────────────────── */
 :root {
   /* Backgrounds */
-  --color-bg:        #0B0B12;
-  --color-surface:   #111118;
-  --color-surface-2: #17171F;
-  --color-surface-3: #1E1E28;
-  --color-elevated:  #22222E;
+  --color-bg:        transparent;
+  --color-surface:   rgba(17, 17, 24, 0.35);
+  --color-surface-2: rgba(23, 23, 31, 0.45);
+  --color-surface-3: rgba(30, 30, 40, 0.55);
+  --color-elevated:  rgba(34, 34, 46, 0.65);
+
+  /* Liquid Glass Effects */
+  --glass-blur: blur(24px) saturate(180%);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.15);
 
   /* Borders */
   --color-border:       rgba(255, 255, 255, 0.06);
@@ -109,6 +114,8 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   user-select: none;
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
 }
 
 #root {

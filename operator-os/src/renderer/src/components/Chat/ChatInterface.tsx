@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import './ChatInterface.css'
 import { ActivityEvent } from '../../App'
+import AIThinkingBlock from '../UI/AIThinkingBlock'
 
 const api = (window as any).electronAPI
 
@@ -272,13 +273,10 @@ export default function ChatInterface({ activityEvents, aiStatus, addActivity }:
         ))}
 
         {isThinking && (
-          <div className="message message-assistant">
-            <div className="message-avatar">⚡</div>
-            <div className="message-body">
-              <div className="thinking-indicator">
-                <span /><span /><span />
-              </div>
-            </div>
+          <div className="message message-assistant" style={{ background: 'transparent', boxShadow: 'none' }}>
+            <AIThinkingBlock 
+              status={activityEvents[activityEvents.length-1]?.message?.includes('memory') ? 'consulting_memory' : 'analyzing_intent'} 
+            />
           </div>
         )}
 

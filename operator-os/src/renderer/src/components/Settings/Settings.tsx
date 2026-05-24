@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Settings as SettingsIcon, Cpu, Shield, Bell, Key, Network } from 'lucide-react'
+import LiquidMetalButton from '../UI/LiquidMetalButton'
 
 const SETTINGS_CATEGORIES = [
   { id: 'general', icon: SettingsIcon, label: 'General' },
@@ -75,7 +76,7 @@ export default function Settings() {
             <div className="task-section" style={{ marginBottom: 0 }}>
               <div className="task-section-title">Theme & Appearance</div>
               <div style={{ display: 'flex', gap: '16px' }}>
-                <button className="btn btn-primary">Dark Mode (Active)</button>
+                <LiquidMetalButton>Dark Mode (Active)</LiquidMetalButton>
                 <button className="btn btn-ghost">Light Mode</button>
                 <button className="btn btn-ghost">System Default</button>
               </div>
@@ -156,7 +157,7 @@ export default function Settings() {
               </label>
             </div>
 
-            <button className="btn btn-primary" style={{ alignSelf: 'flex-start', marginTop: '12px' }}>Save Prompt Settings</button>
+            <LiquidMetalButton style={{ alignSelf: 'flex-start', marginTop: '12px' }}>Save Prompt Settings</LiquidMetalButton>
           </div>
         )}
 
@@ -181,7 +182,7 @@ export default function Settings() {
                 </label>
               </div>
             </div>
-            <button className="btn btn-primary" style={{ alignSelf: 'flex-start', marginTop: '12px' }}>Update Security Settings</button>
+            <LiquidMetalButton style={{ alignSelf: 'flex-start', marginTop: '12px' }}>Update Security Settings</LiquidMetalButton>
           </div>
         )}
 
@@ -226,7 +227,7 @@ export default function Settings() {
                 </div>
               </div>
             </div>
-            <button className="btn btn-primary" style={{ alignSelf: 'flex-start', marginTop: '12px' }}>Save API Keys</button>
+            <LiquidMetalButton style={{ alignSelf: 'flex-start', marginTop: '12px' }}>Save API Keys</LiquidMetalButton>
           </div>
         )}
 
@@ -249,7 +250,7 @@ export default function Settings() {
                 <span style={{ fontSize: '14px' }}>Rotate User Agents Automatically</span>
               </label>
             </div>
-            <button className="btn btn-primary" style={{ alignSelf: 'flex-start', marginTop: '12px' }}>Apply Network Settings</button>
+            <LiquidMetalButton style={{ alignSelf: 'flex-start', marginTop: '12px' }}>Apply Network Settings</LiquidMetalButton>
           </div>
         )}
 

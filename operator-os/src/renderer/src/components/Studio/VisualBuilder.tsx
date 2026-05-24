@@ -4,7 +4,8 @@ import '@xyflow/react/dist/style.css'
 import './VisualBuilder.css'
 import { ActionNode, ConditionNode, LoopNode, CodeNode, AITaskNode, StartNode, EventLoopNode, EventTimerNode, EventSchedulerNode } from './GraphNodes'
 import { autoLayout } from './layoutEngine'
-import { Plus, Zap, LayoutGrid, AlertTriangle, RotateCw, Timer, Calendar, Target, GitBranch, Repeat, Code2, BrainCircuit, Loader2, Play, Terminal, CheckCircle2, XCircle, Activity, Info } from 'lucide-react'
+import { Plus, Zap, LayoutGrid, AlertTriangle, RotateCw, Timer, Calendar, Target, GitBranch, Repeat, Code2, BrainCircuit, Loader2, Play, Terminal, CheckCircle2, XCircle, Activity, Info, X } from 'lucide-react'
+import LiquidMetalButton from '../UI/LiquidMetalButton'
 
 function ActivityLogIcon({ level }: { level: string }) {
   if (level === 'success') return <CheckCircle2 size={13} className="text-green-400" />
@@ -350,8 +351,8 @@ function VisualBuilderInner({ content, onChange, isTesting, setIsTesting }: Visu
             <LayoutGrid size={13} /> Layout
           </button>
           {!isTesting ? (
-            <button 
-              className={`add-step-btn btn-test-flow${isRunning ? ' running' : ''}`} 
+            <LiquidMetalButton 
+              className={`btn-test-flow${isRunning ? ' running' : ''}`} 
               disabled={isRunning}
               onClick={async () => {
                 setIsRunning(true)
@@ -365,10 +366,11 @@ function VisualBuilderInner({ content, onChange, isTesting, setIsTesting }: Visu
               }}
             >
               {isRunning ? <><Loader2 size={13} className="animate-spin" /> Running...</> : <><Play size={13} /> Test Flow</>}
-            </button>
+            </LiquidMetalButton>
           ) : (
-            <button 
-              className="add-step-btn btn-test-flow"
+            <LiquidMetalButton 
+              className="btn-test-flow"
+              variant="danger"
               style={{ backgroundColor: 'rgba(248, 113, 113, 0.1)', color: '#f87171', borderColor: 'rgba(248, 113, 113, 0.3)' }}
               onClick={() => {
                 setIsRunning(false)
@@ -378,8 +380,8 @@ function VisualBuilderInner({ content, onChange, isTesting, setIsTesting }: Visu
                 setActiveEdgeId(null)
               }}
             >
-              <XCircle size={13} /> Stop Test
-            </button>
+              <><X size={13} /> Stop Test</>
+            </LiquidMetalButton>
           )}
         </div>
       </div>

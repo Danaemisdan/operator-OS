@@ -67,7 +67,9 @@ async function createMainWindow(): Promise<void> {
     frame: false,          // Custom titlebar
     titleBarStyle: 'hidden',
     trafficLightPosition: { x: 16, y: 12 },
-    backgroundColor: '#0B0B12',
+    transparent: true,
+    vibrancy: 'fullscreen-ui', // macOS liquid glass effect
+    // backgroundColor: '#00000000',
     show: false,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
