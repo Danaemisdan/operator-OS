@@ -25,7 +25,9 @@
           "measured": {
             "width": 200,
             "height": 213
-          }
+          },
+          "selected": false,
+          "dragging": false
         },
         {
           "id": "node_1779596256396",
@@ -63,7 +65,7 @@
             "width": 200,
             "height": 269
           },
-          "selected": true,
+          "selected": false,
           "dragging": false
         },
         {
@@ -169,8 +171,8 @@
           "id": "node_1779596567047",
           "type": "aiTask",
           "position": {
-            "x": 70,
-            "y": 2700
+            "x": 74.71794539027283,
+            "y": 2755.04269621985
           },
           "data": {
             "action": "aiTask",
@@ -181,15 +183,15 @@
             "width": 200,
             "height": 249
           },
-          "selected": false,
+          "selected": true,
           "dragging": false
         },
         {
           "id": "node_1779596597022",
           "type": "action",
           "position": {
-            "x": 70,
-            "y": 2940
+            "x": 71.57264846342429,
+            "y": 3050.0853924397
           },
           "data": {
             "action": "store_data",
@@ -208,8 +210,8 @@
           "id": "node_1779596758254",
           "type": "start",
           "position": {
-            "x": 60,
-            "y": 60
+            "x": 60.090764987996295,
+            "y": -62.791939895885605
           },
           "data": {
             "description": ""
@@ -225,8 +227,8 @@
           "id": "node_1779596765245",
           "type": "aiTask",
           "position": {
-            "x": 70,
-            "y": 240
+            "x": 70.86235761351128,
+            "y": 147.72773535429346
           },
           "data": {
             "action": "aiTask",
@@ -237,7 +239,8 @@
             "width": 200,
             "height": 249
           },
-          "selected": false
+          "selected": false,
+          "dragging": false
         }
       ],
       "edges": [

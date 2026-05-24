@@ -285,7 +285,7 @@ export class BrowserManager extends EventEmitter {
 
     const tab = this.tabs.get(platform)
     if (tab) {
-      if (this.currentViewState === 'studio' ||
+      if (['studio', 'tasks', 'notes', 'stats', 'settings', 'memory'].includes(this.currentViewState) ||
           (platform === 'home' && (!tab.url || tab.url === 'about:blank' || tab.url === ''))) {
         // Studio editor open: hide browser behind the React app
         tab.view.setBounds({ x: -9999, y: -9999, width: 0, height: 0 })

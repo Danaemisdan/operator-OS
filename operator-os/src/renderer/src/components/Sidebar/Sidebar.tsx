@@ -7,12 +7,12 @@ import ActivityFeed from '../ActivityFeed/ActivityFeed'
 import { Recorder } from '../Recorder'
 import { TabInfo, ActivityEvent, ViewType } from '../../App'
 
-import { MessageSquare, ClipboardList, BrainCircuit, BarChart3, Clapperboard, Settings } from 'lucide-react'
+import { MessageSquare, ClipboardList, BrainCircuit, BarChart3, Clapperboard, Settings, NotebookPen } from 'lucide-react'
 
 const NAV_ITEMS = [
   { id: 'chat',     icon: MessageSquare, label: 'Chat' },
   { id: 'tasks',    icon: ClipboardList, label: 'Tasks' },
-  { id: 'memory',   icon: BrainCircuit,  label: 'Memory' },
+  { id: 'notes',    icon: NotebookPen,   label: 'AI Notes' },
   { id: 'stats',    icon: BarChart3,     label: 'Stats' },
   { id: 'studio',   icon: Clapperboard,  label: 'Studio' },
   { id: 'settings', icon: Settings,      label: 'Settings' },
@@ -57,32 +57,9 @@ export default function Sidebar({
             addActivity={addActivity}
           />
         )}
-        {currentView === 'tasks' && (
-          <div className="sidebar-placeholder">
-            <ClipboardList size={24} className="placeholder-icon" />
-            <span>Task Dashboard is open</span>
-          </div>
-        )}
-        {currentView === 'memory' && (
-          <div className="sidebar-placeholder">
-            <BrainCircuit size={24} className="placeholder-icon" />
-            <span>Memory system coming soon</span>
-          </div>
-        )}
-        {currentView === 'stats' && (
-          <div className="sidebar-placeholder">
-            <BarChart3 size={24} className="placeholder-icon" />
-            <span>Analytics coming soon</span>
-          </div>
-        )}
+
         {currentView === 'studio' && (
           <Recorder isRecording={isRecording} setIsRecording={setIsRecording} activePlatform={activePlatform} />
-        )}
-        {currentView === 'settings' && (
-          <div className="sidebar-placeholder">
-            <Settings size={24} className="placeholder-icon" />
-            <span>Settings coming soon</span>
-          </div>
         )}
       </div>
 

@@ -6,7 +6,11 @@ import ProfileWizard from './components/ProfileWizard/ProfileWizard'
 import HomeDashboard from './components/HomeDashboard/HomeDashboard'
 import WorkflowEditor from './components/Studio/WorkflowEditor'
 import TaskBoard from './components/TaskBoard/TaskBoard'
+import AINotes from './components/AINotes/AINotes'
+import Stats from './components/Stats/Stats'
+import Settings from './components/Settings/Settings'
 import { AlertTriangle, CheckCircle2, XCircle, Info, Zap } from 'lucide-react'
+
 export interface TabInfo {
   id: string
   platform: string
@@ -34,7 +38,7 @@ export interface Toast {
   action?: { label: string; onClick: () => void }
 }
 
-export type ViewType = 'chat' | 'tasks' | 'memory' | 'stats' | 'settings' | 'studio'
+export type ViewType = 'chat' | 'tasks' | 'notes' | 'stats' | 'settings' | 'studio'
 
 const api = (window as any).electronAPI
 
@@ -248,6 +252,12 @@ export default function App() {
             </div>
           ) : currentView === 'tasks' ? (
             <TaskBoard />
+          ) : currentView === 'notes' ? (
+            <AINotes />
+          ) : currentView === 'stats' ? (
+            <Stats />
+          ) : currentView === 'settings' ? (
+            <Settings />
           ) : (
             <>
               <BrowserToolbar
