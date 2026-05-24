@@ -151,7 +151,7 @@ Respond ONLY with this JSON format:
       ...this.chatHistory,
       { role: 'user', content: userMessage },
       { role: 'system', content: 'Output ONLY valid JSON.' }
-    ], { maxTokens: 800, temperature: 0.1, response_format: { type: 'json_object' } })
+    ], { maxTokens: 400, temperature: 0.1, response_format: { type: 'json_object' } })
 
     let data: any = {}
     try {

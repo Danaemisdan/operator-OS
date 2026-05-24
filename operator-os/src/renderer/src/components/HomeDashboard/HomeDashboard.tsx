@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react'
 import './HomeDashboard.css'
 import { ActivityEvent } from '../../App'
+import LiquidMetalButton from '../UI/LiquidMetalButton'
 
 const api = (window as any).electronAPI
 
@@ -122,9 +123,11 @@ export default function HomeDashboard({ aiStatus, activityEvents, onOpenTab }: P
               }
             }}
           />
-          <button className="home-chat-submit" onClick={handleSendPrompt}>
-            Send Request ⚡
-          </button>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '12px' }}>
+            <LiquidMetalButton onClick={handleSendPrompt}>
+              Send Request ⚡
+            </LiquidMetalButton>
+          </div>
         </div>
       </div>
     </div>
