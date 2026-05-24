@@ -91,7 +91,7 @@ export function StartNode({ id, data, selected }: any) {
           />
         </div>
       </div>
-      <Handle type="source" position={Position.Bottom} className="handle-bottom" />
+      <Handle type="source" id="source" position={Position.Bottom} className="handle-bottom" />
     </div>
   )
 }
@@ -145,7 +145,7 @@ export function EventLoopNode({ id, data, selected }: any) {
           />
         </div>
       </div>
-      <Handle type="source" position={Position.Bottom} className="handle-bottom" style={{ background: '#22d3ee' }} />
+      <Handle type="source" id="source" position={Position.Bottom} className="handle-bottom" style={{ background: '#22d3ee' }} />
     </div>
   )
 }
@@ -188,7 +188,7 @@ export function EventTimerNode({ id, data, selected }: any) {
           </div>
         </div>
       </div>
-      <Handle type="source" position={Position.Bottom} className="handle-bottom" style={{ background: '#fb923c' }} />
+      <Handle type="source" id="source" position={Position.Bottom} className="handle-bottom" style={{ background: '#fb923c' }} />
     </div>
   )
 }
@@ -271,7 +271,7 @@ export function EventSchedulerNode({ id, data, selected }: any) {
           </div>
         )}
       </div>
-      <Handle type="source" position={Position.Bottom} className="handle-bottom" style={{ background: '#8b5cf6' }} />
+      <Handle type="source" id="source" position={Position.Bottom} className="handle-bottom" style={{ background: '#8b5cf6' }} />
     </div>
   )
 }
@@ -288,7 +288,7 @@ export function ActionNode({ id, data, selected }: any) {
 
   return (
     <div className={`graph-node action-node ${selected ? 'selected' : ''}`}>
-      <Handle type="target" position={Position.Top} className="handle-top" />
+      <Handle type="target" id="target" position={Position.Top} className="handle-top" />
       <div className="node-header">
         <span className="node-icon">{renderStepIcon(data.action)}</span>
         <select 
@@ -458,7 +458,7 @@ export function ActionNode({ id, data, selected }: any) {
           </>
         )}
       </div>
-      <Handle type="source" position={Position.Bottom} className="handle-bottom" />
+      <Handle type="source" id="source" position={Position.Bottom} className="handle-bottom" />
     </div>
   )
 }
@@ -477,7 +477,7 @@ export function ConditionNode({ id, data, selected }: any) {
 
   return (
     <div className={`graph-node condition-node ${selected ? 'selected' : ''}`}>
-      <Handle type="target" position={Position.Top} className="handle-top" />
+      <Handle type="target" id="target" position={Position.Top} className="handle-top" />
       <div className="node-header">
         <span className="node-icon">{renderStepIcon('condition')}</span>
         <span className="node-title">CONDITION</span>
@@ -548,7 +548,7 @@ export function LoopNode({ id, data, selected }: any) {
 
   return (
     <div className={`graph-node loop-node ${selected ? 'selected' : ''}`} style={{ borderLeftColor: '#818cf8' }}>
-      <Handle type="target" position={Position.Top} className="handle-top" />
+      <Handle type="target" id="target" position={Position.Top} className="handle-top" />
       <div className="node-header">
         <span className="node-icon">{renderStepIcon('loop')}</span>
         <span className="node-title">LOOP ITEMS</span>
@@ -594,7 +594,7 @@ export function CodeNode({ id, data, selected }: any) {
 
   return (
     <div className={`graph-node code-node ${selected ? 'selected' : ''}`} style={{ borderLeftColor: 'rgba(251, 146, 60, 0.6)', borderLeftWidth: '4px' }}>
-      <Handle type="target" position={Position.Top} className="handle-top" />
+      <Handle type="target" id="target" position={Position.Top} className="handle-top" />
       <div className="node-header">
         <span className="node-icon">⚡️</span>
         <span className="node-title">JS CODE / MATH</span>
@@ -620,7 +620,7 @@ export function CodeNode({ id, data, selected }: any) {
           />
         </div>
       </div>
-      <Handle type="source" position={Position.Bottom} className="handle-bottom" />
+      <Handle type="source" id="source" position={Position.Bottom} className="handle-bottom" />
     </div>
   )
 }
@@ -637,7 +637,7 @@ export function AITaskNode({ id, data, selected }: any) {
 
   return (
     <div className={`graph-node aitask-node ${selected ? 'selected' : ''}`} style={{ borderLeftColor: 'rgba(244, 114, 182, 0.6)', borderLeftWidth: '4px' }}>
-      <Handle type="target" position={Position.Top} className="handle-top" />
+      <Handle type="target" id="target" position={Position.Top} className="handle-top" />
       <div className="node-header">
         <span className="node-icon">🧠</span>
         <span className="node-title">AI TASK</span>
@@ -664,7 +664,7 @@ export function AITaskNode({ id, data, selected }: any) {
           />
         </div>
       </div>
-      <Handle type="source" position={Position.Bottom} className="handle-bottom" />
+      <Handle type="source" id="source" position={Position.Bottom} className="handle-bottom" />
     </div>
   )
 }

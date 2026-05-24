@@ -95,6 +95,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onTestLog: (cb: (entry: { level: string; message: string }) => void) => {
       ipcRenderer.on('workflow:test-log', (_, entry) => cb(entry))
       return () => ipcRenderer.removeAllListeners('workflow:test-log')
+    },
+    onTestNodeActive: (cb: (data: { nodeId: string }) => void) => {
+      ipcRenderer.on('workflow:test-node-active', (_, data) => cb(data))
+      return () => ipcRenderer.removeAllListeners('workflow:test-node-active')
+    },
+    onTestEdgeActive: (cb: (data: { source: string, target: string }) => void) => {
+      ipcRenderer.on('workflow:test-edge-active', (_, data) => cb(data))
+      return () => ipcRenderer.removeAllListeners('workflow:test-edge-active')
     }
   },
 

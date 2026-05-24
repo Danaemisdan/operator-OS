@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { FileJson, Save, RefreshCw, X, Code, LayoutList, Trash2, Search, ChevronDown, ChevronRight } from 'lucide-react'
 import VisualBuilder from './VisualBuilder'
+import PlatformIcon from '../PlatformIcon'
 import './WorkflowEditor.css'
 
 interface WorkflowEditorProps {
@@ -8,34 +9,19 @@ interface WorkflowEditorProps {
   setIsTesting?: (v: boolean) => void
 }
 
-const PLATFORM_ICONS: Record<string, string> = {
-  linkedin: '💼',
-  twitter: '🐦',
-  instagram: '📸',
-  whatsapp: '💬',
-  telegram: '✈️',
-  reddit: '🤖',
-  youtube: '▶️',
-  google: '🔍',
-  unknown: '📄',
+interface WorkflowFileInfo {
+  filename: string
+  platform: string
 }
 
-function getPlatformFromFilename(filename: string): string {
-  const lower = filename.toLowerCase()
-  for (const p of Object.keys(PLATFORM_ICONS)) {
-    if (p !== 'unknown' && lower.includes(p)) return p
-  }
-  return 'unknown'
-}
-
-function groupByPlatform(files: string[], search: string): Record<string, string[]> {
+function groupByPlatform(files: WorkflowFileInfo[], search: string): Record<string, WorkflowFileInfo[]> {
   const filtered = search.trim()
-    ? files.filter(f => f.toLowerCase().includes(search.toLowerCase()))
+    ? files.filter(f => f.filename.toLowerCase().includes(search.toLowerCase()))
     : files
 
-  const groups: Record<string, string[]> = {}
+  const groups: Record<string, WorkflowFileInfo[]> = {}
   for (const f of filtered) {
-    const p = getPlatformFromFilename(f)
+    const p = f.platform || 'unknown'
     if (!groups[p]) groups[p] = []
     groups[p].push(f)
   }
@@ -43,7 +29,7 @@ function groupByPlatform(files: string[], search: string): Record<string, string
 }
 
 export default function WorkflowEditor({ isTesting, setIsTesting }: WorkflowEditorProps) {
-  const [files, setFiles] = useState<string[]>([])
+  const [files, setFiles] = useState<WorkflowFileInfo[]>([])
   const [selectedFile, setSelectedFile] = useState<string | null>(null)
   const [fileContent, setFileContent] = useState<string>('')
   const [isDirty, setIsDirty] = useState(false)
@@ -67,6 +53,13 @@ export default function WorkflowEditor({ isTesting, setIsTesting }: WorkflowEdit
   // ── Undo / Redo History ──
   const historyRef = useRef<string[]>([])
   const historyIndex = useRef(-1)
+
+  // ── Safeguard: Reset test mode if no file is selected ──
+  useEffect(() => {
+    if (!selectedFile && isTesting) {
+      setIsTesting?.(false)
+    }
+  }, [selectedFile, isTesting, setIsTesting])
   const isUndoRedoing = useRef(false)
 
   useEffect(() => {
@@ -209,71 +202,73 @@ export default function WorkflowEditor({ isTesting, setIsTesting }: WorkflowEdit
   const sortedPlatforms = platformOrder.filter(p => grouped[p])
 
   return (
-    <div className="workflow-editor-container" ref={containerRef}>
+    <div className={`workflow-editor-container ${isTesting ? 'is-testing' : ''}`} ref={containerRef}>
 
       {/* ── Resizable file list sidebar ── */}
-      <div className="workflow-sidebar" style={{ width: sidebarWidth }}>
-        <div className="workflow-sidebar-header">
-          <h3>Workflows</h3>
-          <button onClick={loadFiles} className="icon-btn" title="Refresh"><RefreshCw size={13} /></button>
-        </div>
+      {!isTesting && (
+        <div className="workflow-sidebar" style={{ width: sidebarWidth }}>
+          <div className="workflow-sidebar-header">
+            <h3>Workflows</h3>
+            <button onClick={loadFiles} className="icon-btn" title="Refresh"><RefreshCw size={13} /></button>
+          </div>
 
-        {/* Search */}
-        <div className="workflow-search-wrap">
-          <Search size={12} className="workflow-search-icon" />
-          <input
-            className="workflow-search-input"
-            placeholder="Search automations..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
-          {search && (
-            <button className="workflow-search-clear" onClick={() => setSearch('')}>×</button>
-          )}
-        </div>
+          {/* Search */}
+          <div className="workflow-search-wrap">
+            <Search size={12} className="workflow-search-icon" />
+            <input
+              className="workflow-search-input"
+              placeholder="Search automations..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
+            {search && (
+              <button className="workflow-search-clear" onClick={() => setSearch('')}>×</button>
+            )}
+          </div>
 
-        {/* Platform-grouped list */}
-        <div className="workflow-list custom-scrollbar">
-          {files.length === 0 && (
-            <div className="workflow-empty-msg">No workflows saved yet.</div>
-          )}
-          {sortedPlatforms.map(platform => (
-            <div key={platform} className="workflow-platform-group">
-              <button
-                className="workflow-platform-header"
-                onClick={() => toggleGroup(platform)}
-              >
-                <span className="platform-group-icon">{PLATFORM_ICONS[platform]}</span>
-                <span className="platform-group-name">{platform.charAt(0).toUpperCase() + platform.slice(1)}</span>
-                <span className="platform-group-count">{grouped[platform].length}</span>
-                <span className="platform-group-chevron">
-                  {collapsedGroups.has(platform) ? <ChevronRight size={12} /> : <ChevronDown size={12} />}
-                </span>
-              </button>
-              {!collapsedGroups.has(platform) && grouped[platform].map(f => (
-                <div
-                  key={f}
-                  className={`workflow-list-item ${selectedFile === f ? 'active' : ''}`}
-                  onClick={() => handleSelectFile(f)}
+          {/* Platform-grouped list */}
+          <div className="workflow-list custom-scrollbar">
+            {files.length === 0 && (
+              <div className="workflow-empty-msg">No workflows saved yet.</div>
+            )}
+            {sortedPlatforms.map(platform => (
+              <div key={platform} className="workflow-platform-group">
+                <button
+                  className="workflow-platform-header"
+                  onClick={() => toggleGroup(platform)}
                 >
-                  <FileJson size={12} className="shrink-0" />
-                  <span className="workflow-filename">{f.replace(/^recorded_/, '').replace(/_/g, ' ').replace('.json', '')}</span>
-                  {selectedFile === f && isDirty && <div className="dirty-dot shrink-0" />}
-                  <button className="workflow-list-delete shrink-0" onClick={e => handleDelete(e, f)} title="Delete">
-                    <Trash2 size={11} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          ))}
-          {search && sortedPlatforms.length === 0 && (
-            <div className="workflow-empty-msg">No matches for "{search}"</div>
-          )}
+                  <span className="platform-group-icon"><PlatformIcon platform={platform} /></span>
+                  <span className="platform-group-name">{platform.charAt(0).toUpperCase() + platform.slice(1)}</span>
+                  <span className="platform-group-count">{grouped[platform].length}</span>
+                  <span className="platform-group-chevron">
+                    {collapsedGroups.has(platform) ? <ChevronRight size={12} /> : <ChevronDown size={12} />}
+                  </span>
+                </button>
+                {!collapsedGroups.has(platform) && grouped[platform].map(f => (
+                  <div
+                    key={f.filename}
+                    className={`workflow-list-item ${selectedFile === f.filename ? 'active' : ''}`}
+                    onClick={() => handleSelectFile(f.filename)}
+                  >
+                    <FileJson size={12} className="shrink-0" />
+                    <span className="workflow-filename">{f.filename.replace(/^recorded_/, '').replace(/_/g, ' ').replace('.json', '')}</span>
+                    {selectedFile === f.filename && isDirty && <div className="dirty-dot shrink-0" />}
+                    <button className="workflow-list-delete shrink-0" onClick={e => handleDelete(e, f.filename)} title="Delete">
+                      <Trash2 size={11} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ))}
+            {search && sortedPlatforms.length === 0 && (
+              <div className="workflow-empty-msg">No matches for "{search}"</div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Drag resize handle */}
-      <div className="sidebar-resize-handle" onMouseDown={onMouseDown} />
+      {!isTesting && <div className="sidebar-resize-handle" onMouseDown={onMouseDown} />}
 
       {/* ── Main editor area ── */}
       <div className="workflow-main">
@@ -281,7 +276,7 @@ export default function WorkflowEditor({ isTesting, setIsTesting }: WorkflowEdit
           <div className="workflow-editor-view">
             <div className="workflow-editor-header">
               <div className="editor-file-info">
-                <span>{PLATFORM_ICONS[getPlatformFromFilename(selectedFile)]}</span>
+                <span><PlatformIcon platform={files.find(f => f.filename === selectedFile)?.platform || 'unknown'} size={18} /></span>
                 <span className="editor-filename">
                   {selectedFile.replace(/^recorded_/, '').replace(/_/g, ' ').replace('.json', '')}
                 </span>

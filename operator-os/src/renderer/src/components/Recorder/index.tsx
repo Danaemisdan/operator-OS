@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { Video, Square, Save, Loader2, Plus } from 'lucide-react'
-import { ReactFlow, Background, ConnectionMode, useNodesState, useEdgesState, addEdge } from '@xyflow/react'
+import { ReactFlow, Background, useNodesState, useEdgesState, addEdge } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import { ActionNode, ConditionNode, CodeNode, AITaskNode, LoopNode } from '../Studio/GraphNodes'
 import './Recorder.css'
@@ -13,7 +13,7 @@ const nodeTypes = {
   loop: LoopNode
 }
 
-export function Recorder({ isRecording, setIsRecording }: { isRecording: boolean, setIsRecording: (v: boolean) => void }) {
+export function Recorder({ isRecording, setIsRecording, activePlatform }: { isRecording: boolean, setIsRecording: (v: boolean) => void, activePlatform: string }) {
   const [nodes, setNodes, onNodesChange] = useNodesState([])
   const [edges, setEdges, onEdgesChange] = useEdgesState([])
   
@@ -137,9 +137,9 @@ export function Recorder({ isRecording, setIsRecording }: { isRecording: boolean
     setIsSaving(true)
     
     const skillJson = {
-      id: `linkedin.${stepName.toLowerCase().replace(/[^a-z0-9]/g, '_')}`,
+      id: `${activePlatform}.${stepName.toLowerCase().replace(/[^a-z0-9]/g, '_')}`,
       name: stepName,
-      platform: "linkedin",
+      platform: activePlatform,
       description: stepDescription,
       inputs: [],
       outputs: [],
@@ -154,7 +154,8 @@ export function Recorder({ isRecording, setIsRecording }: { isRecording: boolean
     }
     
     try {
-      await window.electronAPI.workflow.saveReference(stepName, JSON.stringify(filePayload, null, 2))
+      const folderStepName = `${activePlatform}/${stepName}`
+      await window.electronAPI.workflow.saveReference(folderStepName, JSON.stringify(filePayload, null, 2))
       alert("Atomic Step saved successfully!")
     } catch (e) {
       alert("Failed to save: " + e)
@@ -236,7 +237,7 @@ export function Recorder({ isRecording, setIsRecording }: { isRecording: boolean
               setEdges(eds => eds.filter(e => e.id !== edge.id));
             }}
             nodeTypes={nodeTypes}
-            connectionMode={ConnectionMode.Loose}
+            connectionMode={'loose' as any}
             fitView
             proOptions={{ hideAttribution: true }}
           >

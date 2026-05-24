@@ -299,7 +299,13 @@ ipcMain.handle('workflow:test', async (event, skillContent: string) => {
     extractText: async (selector: string) => {
       return wc.executeJavaScript(`document.querySelector(${JSON.stringify(selector)})?.innerText || ''`) as Promise<string>
     },
-    evaluate: <T = unknown>(js: string) => wc.executeJavaScript(js) as Promise<T>
+    evaluate: <T = unknown>(js: string) => wc.executeJavaScript(js) as Promise<T>,
+    setActiveNode: (nodeId: string) => {
+      event.sender.send('workflow:test-node-active', { nodeId })
+    },
+    setActiveEdge: (source: string, target: string) => {
+      event.sender.send('workflow:test-edge-active', { source, target })
+    }
   }
 
   try {
@@ -308,12 +314,12 @@ ipcMain.handle('workflow:test', async (event, skillContent: string) => {
     const result = await interpreter.run(definition)
     event.sender.send('workflow:test-log', {
       level: result.success ? 'success' : 'error',
-      message: result.success ? '✅ Workflow completed!' : `❌ ${result.error}`
+      message: result.success ? 'Workflow completed!' : `${result.error}`
     })
     return { success: result.success, logs: logStream, outputs: result.outputs, error: result.error }
   } catch (e) {
     const err = String(e)
-    event.sender.send('workflow:test-log', { level: 'error', message: `❌ ${err}` })
+    event.sender.send('workflow:test-log', { level: 'error', message: `${err}` })
     return { success: false, error: err, logs: logStream }
   }
 })
@@ -362,7 +368,18 @@ ipcMain.handle('workflow:list', async () => {
       return results
     }
     const files = getAllFiles(stepsDir)
-    return files.map((f: string) => path.relative(stepsDir, f))
+    return files.map((f: string) => {
+      const filename = path.relative(stepsDir, f)
+      let platform = 'unknown'
+      try {
+        const content = fs.readFileSync(f, 'utf8')
+        const parsed = JSON.parse(content)
+        if (parsed?.skills?.[0]?.platform) {
+          platform = parsed.skills[0].platform
+        }
+      } catch (e) {}
+      return { filename, platform }
+    })
   } catch (e) {
     return []
   }

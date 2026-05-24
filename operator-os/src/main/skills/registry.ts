@@ -35,6 +35,8 @@ export interface SkillContext {
   extractText: (selector: string) => Promise<string>
   /** Execute raw javascript in the browser and return the result */
   evaluate: <T = unknown>(js: string) => Promise<T>
+  /** Notify the frontend that a node has started execution */
+  setActiveNode?: (nodeId: string) => void
 }
 
 export interface SkillResult {

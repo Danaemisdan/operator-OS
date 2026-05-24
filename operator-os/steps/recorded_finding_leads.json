@@ -1,0 +1,308 @@
+{
+  "version": "1",
+  "skills": [
+    {
+      "id": "linkedin.finding_leads",
+      "name": "Finding-leads",
+      "platform": "linkedin",
+      "description": "",
+      "inputs": [],
+      "outputs": [],
+      "triggers": [],
+      "nodes": [
+        {
+          "id": "node_1779596248394",
+          "type": "action",
+          "position": {
+            "x": 70,
+            "y": 480
+          },
+          "data": {
+            "action": "navigate",
+            "url": "https://www.linkedin.com/feed/",
+            "intent": "Navigate to https://www.linkedin.com/feed/"
+          },
+          "measured": {
+            "width": 200,
+            "height": 213
+          }
+        },
+        {
+          "id": "node_1779596256396",
+          "type": "action",
+          "position": {
+            "x": 70,
+            "y": 760
+          },
+          "data": {
+            "action": "click",
+            "selector": "div#root > div:nth-of-type(2) > div:nth-of-type(2) > div > header > div > div > div > div:nth-of-type(2) > div:nth-of-type(2) > div > input",
+            "targetName": "element div#root > div:nth-of-type(2) > div:nth-of-type(2) > div > header > div > div > div > div:nth-of-type(2) > div:nth-of-type(2) > div > input",
+            "intent": "Click on element div#root > div:nth-of-type(2) > div:nth-of-type(2) > div > header > div > div > div > div:nth-of-type(2) > div:nth-of-type(2) > div > input"
+          },
+          "measured": {
+            "width": 200,
+            "height": 166
+          }
+        },
+        {
+          "id": "node_1779596261545",
+          "type": "action",
+          "position": {
+            "x": 70,
+            "y": 1040
+          },
+          "data": {
+            "action": "type",
+            "selector": "div#root > div:nth-of-type(2) > div:nth-of-type(2) > div > header > div > div > div > div:nth-of-type(2) > div:nth-of-type(2) > div > input",
+            "targetName": "element div#root > div:nth-of-type(2) > div:nth-of-type(2) > div > header > div > div > div > div:nth-of-type(2) > div:nth-of-type(2) > div > input",
+            "value": "{{Search}}",
+            "intent": "Type into element div#root > div:nth-of-type(2) > div:nth-of-type(2) > div > header > div > div > div > div:nth-of-type(2) > div:nth-of-type(2) > div > input"
+          },
+          "measured": {
+            "width": 200,
+            "height": 269
+          },
+          "selected": true,
+          "dragging": false
+        },
+        {
+          "id": "node_1779596263339",
+          "type": "action",
+          "position": {
+            "x": 70,
+            "y": 1320
+          },
+          "data": {
+            "action": "keypress",
+            "key": "Enter",
+            "intent": "Press Enter"
+          },
+          "measured": {
+            "width": 200,
+            "height": 166
+          },
+          "selected": false,
+          "dragging": false
+        },
+        {
+          "id": "node_1779596279857",
+          "type": "action",
+          "position": {
+            "x": 70,
+            "y": 1600
+          },
+          "data": {
+            "action": "click",
+            "selector": "div#root > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div > div > div > div > div > a > div > label",
+            "targetName": "\"People\"",
+            "intent": "Click on \"People\""
+          },
+          "measured": {
+            "width": 200,
+            "height": 166
+          },
+          "selected": false,
+          "dragging": false
+        },
+        {
+          "id": "node_1779596428582",
+          "type": "condition",
+          "position": {
+            "x": 70,
+            "y": 1880
+          },
+          "data": {
+            "conditionType": "ai",
+            "condition": "true",
+            "action": "condition"
+          },
+          "measured": {
+            "width": 200,
+            "height": 206
+          },
+          "selected": false,
+          "dragging": false
+        },
+        {
+          "id": "node_1779596437898",
+          "type": "action",
+          "position": {
+            "x": 70,
+            "y": 2140
+          },
+          "data": {
+            "action": "click",
+            "selector": "div#root > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > div > div > div > div > div > div > div:nth-of-type(2) > div > label",
+            "targetName": "\"1st\"",
+            "intent": "Click on \"1st\""
+          },
+          "measured": {
+            "width": 200,
+            "height": 166
+          },
+          "selected": false,
+          "dragging": false
+        },
+        {
+          "id": "node_1779596500198",
+          "type": "action",
+          "position": {
+            "x": 70,
+            "y": 2420
+          },
+          "data": {
+            "action": "extract",
+            "purpose": "",
+            "selector": "main#workspace > div",
+            "targetName": "\"Mohammed Faisal • 1st Freelance Digital\" div",
+            "output": "Extracted Data"
+          },
+          "measured": {
+            "width": 200,
+            "height": 278
+          },
+          "selected": false,
+          "dragging": false
+        },
+        {
+          "id": "node_1779596567047",
+          "type": "aiTask",
+          "position": {
+            "x": 70,
+            "y": 2700
+          },
+          "data": {
+            "action": "aiTask",
+            "prompt": "Summarize {{Extracted Data}}",
+            "output": "Data_Extracted"
+          },
+          "measured": {
+            "width": 200,
+            "height": 249
+          },
+          "selected": false,
+          "dragging": false
+        },
+        {
+          "id": "node_1779596597022",
+          "type": "action",
+          "position": {
+            "x": 70,
+            "y": 2940
+          },
+          "data": {
+            "action": "store_data",
+            "purpose": "",
+            "targetName": "People-To-Message",
+            "value": "{{Data_Extracted}}"
+          },
+          "measured": {
+            "width": 200,
+            "height": 331
+          },
+          "selected": false,
+          "dragging": false
+        },
+        {
+          "id": "node_1779596758254",
+          "type": "start",
+          "position": {
+            "x": 60,
+            "y": 60
+          },
+          "data": {
+            "description": ""
+          },
+          "measured": {
+            "width": 220,
+            "height": 136
+          },
+          "selected": false,
+          "dragging": false
+        },
+        {
+          "id": "node_1779596765245",
+          "type": "aiTask",
+          "position": {
+            "x": 70,
+            "y": 240
+          },
+          "data": {
+            "action": "aiTask",
+            "prompt": "Understand {{intent}} and tell what should be the search term or keyword we wanna search with.",
+            "output": "Search"
+          },
+          "measured": {
+            "width": 200,
+            "height": 249
+          },
+          "selected": false
+        }
+      ],
+      "edges": [
+        {
+          "id": "e_node_1779596248394-node_1779596256396",
+          "source": "node_1779596248394",
+          "target": "node_1779596256396"
+        },
+        {
+          "id": "e_node_1779596256396-node_1779596261545",
+          "source": "node_1779596256396",
+          "target": "node_1779596261545"
+        },
+        {
+          "id": "e_node_1779596261545-node_1779596263339",
+          "source": "node_1779596261545",
+          "target": "node_1779596263339"
+        },
+        {
+          "id": "e_node_1779596263339-node_1779596279857",
+          "source": "node_1779596263339",
+          "target": "node_1779596279857"
+        },
+        {
+          "id": "e_node_1779596279857-node_1779596428582",
+          "source": "node_1779596279857",
+          "target": "node_1779596428582"
+        },
+        {
+          "id": "e_node_1779596428582-node_1779596437898",
+          "source": "node_1779596428582",
+          "target": "node_1779596437898",
+          "sourceHandle": "true"
+        },
+        {
+          "id": "e_node_1779596437898-node_1779596500198",
+          "source": "node_1779596437898",
+          "target": "node_1779596500198"
+        },
+        {
+          "id": "e_node_1779596500198-node_1779596567047",
+          "source": "node_1779596500198",
+          "target": "node_1779596567047"
+        },
+        {
+          "id": "e_node_1779596567047-node_1779596597022",
+          "source": "node_1779596567047",
+          "target": "node_1779596597022"
+        },
+        {
+          "source": "node_1779596725138",
+          "target": "node_1779596248394",
+          "id": "xy-edge__node_1779596725138-node_1779596248394"
+        },
+        {
+          "source": "node_1779596758254",
+          "target": "node_1779596765245",
+          "id": "xy-edge__node_1779596758254-node_1779596765245"
+        },
+        {
+          "source": "node_1779596765245",
+          "target": "node_1779596248394",
+          "id": "xy-edge__node_1779596765245-node_1779596248394"
+        }
+      ]
+    }
+  ]
+}

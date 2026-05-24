@@ -1,13 +1,14 @@
 import React from 'react'
+import PlatformIcon from '../PlatformIcon'
 import './PlatformStatus.css'
 
 const api = (window as any).electronAPI
 
 const PLATFORMS = [
-  { id: 'linkedin',  icon: '💼', label: 'LinkedIn',  color: '#0A66C2' },
-  { id: 'twitter',   icon: '🐦', label: 'X',         color: '#1DA1F2' },
-  { id: 'instagram', icon: '📷', label: 'Instagram', color: '#E1306C' },
-  { id: 'whatsapp',  icon: '💬', label: 'WhatsApp',  color: '#25D366' },
+  { id: 'linkedin',  label: 'LinkedIn',  color: '#0A66C2' },
+  { id: 'twitter',   label: 'X',         color: '#1DA1F2' },
+  { id: 'instagram', label: 'Instagram', color: '#E1306C' },
+  { id: 'whatsapp',  label: 'WhatsApp',  color: '#25D366' },
 ]
 
 interface Props {
@@ -46,7 +47,7 @@ export default function PlatformStatus({ loginStatuses, onOpenTab, onTabSwitch }
               title={`${p.label}: ${status || 'not opened'}`}
               style={{ '--chip-color': p.color } as any}
             >
-              <span className="chip-icon">{p.icon}</span>
+              <span className="chip-icon"><PlatformIcon platform={p.id} size={14} /></span>
               <span className="chip-label">{p.label}</span>
               <StatusDot status={status} />
             </button>

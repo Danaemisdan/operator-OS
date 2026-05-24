@@ -6,7 +6,7 @@ import ProfileWizard from './components/ProfileWizard/ProfileWizard'
 import HomeDashboard from './components/HomeDashboard/HomeDashboard'
 import WorkflowEditor from './components/Studio/WorkflowEditor'
 import TaskBoard from './components/TaskBoard/TaskBoard'
-
+import { AlertTriangle, CheckCircle2, XCircle, Info, Zap } from 'lucide-react'
 export interface TabInfo {
   id: string
   platform: string
@@ -107,7 +107,7 @@ export default function App() {
       addActivity({
         type: 'error',
         platform: data.platform,
-        message: `⚠️ ${platformName}: login required — login page opened`
+        message: `${platformName}: login required — login page opened`
       })
       setLoginStatuses(prev => ({ ...prev, [data.platform]: 'logged_out' }))
     })
@@ -115,7 +115,7 @@ export default function App() {
     const offLoginStatus = api.platform?.onLoginStatus?.((data: any) => {
       setLoginStatuses(prev => ({ ...prev, [data.platform]: data.status }))
       if (data.status === 'logged_in') {
-        addActivity({ type: 'success', platform: data.platform, message: `${data.platform}: connected ✓` })
+        addActivity({ type: 'success', platform: data.platform, message: `${data.platform}: connected` })
         // Dismiss any login toast for this platform
         setToasts(prev => prev.filter(t => !(t.platform === data.platform && t.type === 'warning')))
       }
@@ -194,7 +194,7 @@ export default function App() {
         {toasts.map(toast => (
           <div key={toast.id} className={`toast toast-${toast.type}`}>
             <span className="toast-icon">
-              {toast.type === 'warning' ? '⚠️' : toast.type === 'error' ? '❌' : toast.type === 'success' ? '✅' : 'ℹ️'}
+              {toast.type === 'warning' ? <AlertTriangle size={16} /> : toast.type === 'error' ? <XCircle size={16} /> : toast.type === 'success' ? <CheckCircle2 size={16} /> : <Info size={16} />}
             </span>
             <span className="toast-message">{toast.message}</span>
             {toast.action && (
@@ -211,32 +211,41 @@ export default function App() {
       </div>
 
       <div className="main-content">
-        <Sidebar
-          currentView={currentView}
-          onViewChange={handleViewChange}
-          tabs={tabs}
-          loginStatuses={loginStatuses}
-          activityEvents={activityEvents}
-          aiStatus={aiStatus}
-          onOpenTab={handleOpenTab}
-          onTabSwitch={handleTabSwitch}
-          addActivity={addActivity}
-          isRecording={isRecording}
-          setIsRecording={setIsRecording}
-          isTesting={isTesting}
-          setIsTesting={setIsTesting}
-        />
+        {!isTesting && (
+          <Sidebar
+            currentView={currentView}
+            onViewChange={handleViewChange}
+            tabs={tabs}
+            loginStatuses={loginStatuses}
+            activityEvents={activityEvents}
+            aiStatus={aiStatus}
+            onOpenTab={handleOpenTab}
+            onTabSwitch={handleTabSwitch}
+            addActivity={addActivity}
+            isRecording={isRecording}
+            setIsRecording={setIsRecording}
+            isTesting={isTesting}
+            setIsTesting={setIsTesting}
+          />
+        )}
 
         <div className="browser-area">
           {currentView === 'studio' && !isRecording ? (
-            isTesting ? (
-              /* ── Test Mode ── node map 420px left, native browser on the right ── */
-              <div style={{ display: 'flex', height: '100%', width: '420px', flexShrink: 0, overflow: 'hidden', borderRight: '1px solid var(--color-border)' }}>
+            <div style={{ display: 'flex', flexDirection: 'row', width: '100%', height: '100%' }}>
+              <div style={isTesting ? { display: 'flex', height: '100%', width: '420px', flexShrink: 0, overflow: 'hidden', borderRight: '1px solid var(--color-border)' } : { display: 'flex', height: '100%', width: '100%', overflow: 'hidden' }}>
                 <WorkflowEditor isTesting={isTesting} setIsTesting={setIsTesting} />
               </div>
-            ) : (
-              <WorkflowEditor isTesting={isTesting} setIsTesting={setIsTesting} />
-            )
+              {isTesting && (
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', backgroundColor: 'var(--color-bg)', minWidth: 0 }}>
+                  <BrowserToolbar
+                    tabs={tabs}
+                    onTabSwitch={handleTabSwitch}
+                    onOpenTab={handleOpenTab}
+                  />
+                  <div className="browser-viewport" />
+                </div>
+              )}
+            </div>
           ) : currentView === 'tasks' ? (
             <TaskBoard />
           ) : (
@@ -249,7 +258,7 @@ export default function App() {
               <div className="browser-viewport">
                 {tabs.length === 0 && (
                   <div className="browser-empty-state">
-                    <div className="empty-icon">⚡</div>
+                    <div className="empty-icon"><Zap size={48} /></div>
                     <p>Open a platform from the sidebar to get started</p>
                   </div>
                 )}

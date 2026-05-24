@@ -4,7 +4,15 @@ import '@xyflow/react/dist/style.css'
 import './VisualBuilder.css'
 import { ActionNode, ConditionNode, LoopNode, CodeNode, AITaskNode, StartNode, EventLoopNode, EventTimerNode, EventSchedulerNode } from './GraphNodes'
 import { autoLayout } from './layoutEngine'
-import { Plus, Zap, LayoutGrid } from 'lucide-react'
+import { Plus, Zap, LayoutGrid, AlertTriangle, RotateCw, Timer, Calendar, Target, GitBranch, Repeat, Code2, BrainCircuit, Loader2, Play, Terminal, CheckCircle2, XCircle, Activity, Info } from 'lucide-react'
+
+function ActivityLogIcon({ level }: { level: string }) {
+  if (level === 'success') return <CheckCircle2 size={13} className="text-green-400" />
+  if (level === 'error') return <XCircle size={13} className="text-red-400" />
+  if (level === 'thinking') return <BrainCircuit size={13} className="text-purple-400" />
+  if (level === 'action') return <Activity size={13} className="text-blue-400" />
+  return <Info size={13} className="text-gray-400" />
+}
 
 const nodeTypes = {
   action: ActionNode,
@@ -41,6 +49,8 @@ function VisualBuilderInner({ content, onChange, isTesting, setIsTesting }: Visu
   const [menuPos, setMenuPos] = useState<{x: number, y: number} | null>(null)
   const [pendingEdge, setPendingEdge] = useState<any>(null)
   const [isRunning, setIsRunning] = useState(false)
+  const [activeNodeId, setActiveNodeId] = useState<string | null>(null)
+  const [activeEdgeId, setActiveEdgeId] = useState<string | null>(null)
   const [testLogs, setTestLogs] = useState<Array<{level: string, message: string}> | null>(null)
   const logsEndRef = useRef<HTMLDivElement>(null)
   const { screenToFlowPosition, fitView } = useReactFlow()
@@ -109,10 +119,20 @@ function VisualBuilderInner({ content, onChange, isTesting, setIsTesting }: Visu
 
   // Subscribe to live test-log events from the main process
   useEffect(() => {
-    const cleanup = (window as any).electronAPI?.workflow?.onTestLog?.((entry: {level: string, message: string}) => {
+    const cleanupLog = (window as any).electronAPI?.workflow?.onTestLog?.((entry: {level: string, message: string}) => {
       setTestLogs(prev => [...(prev || []), entry])
     })
-    return () => { if (cleanup) cleanup() }
+    const cleanupNode = (window as any).electronAPI?.workflow?.onTestNodeActive?.((data: { nodeId: string }) => {
+      setActiveNodeId(data.nodeId)
+    })
+    const cleanupEdge = (window as any).electronAPI?.workflow?.onTestEdgeActive?.((data: { source: string, target: string }) => {
+      setActiveEdgeId(`${data.source}->${data.target}`)
+    })
+    return () => { 
+      if (cleanupLog) cleanupLog() 
+      if (cleanupNode) cleanupNode()
+      if (cleanupEdge) cleanupEdge()
+    }
   }, [])
 
   // Auto-scroll logs to bottom
@@ -149,7 +169,20 @@ function VisualBuilderInner({ content, onChange, isTesting, setIsTesting }: Visu
 
   const onConnect = useCallback((params: Connection) => {
     setEdges((eds) => {
-      const updatedEdges = addEdge(params, eds)
+      let finalParams = { ...params }
+      // If the user dragged from a target handle to a source handle (opposite direction),
+      // swap the source and target to maintain correct flow polarity.
+      if (params.sourceHandle === 'target' || params.targetHandle === 'source' || params.targetHandle === 'true' || params.targetHandle === 'false' || params.targetHandle === 'each' || params.targetHandle === 'done') {
+        finalParams = {
+          ...params,
+          source: params.target,
+          target: params.source,
+          sourceHandle: params.targetHandle,
+          targetHandle: params.sourceHandle,
+        }
+      }
+      
+      const updatedEdges = addEdge(finalParams, eds)
       saveGraph(nodes, updatedEdges)
       return updatedEdges
     })
@@ -281,30 +314,30 @@ function VisualBuilderInner({ content, onChange, isTesting, setIsTesting }: Visu
             <Zap size={13} /> Start
           </button>
           <button className="add-step-btn" style={{ color: '#22d3ee', borderColor: 'rgba(34,211,238,0.3)' }} onClick={() => addNode('eventLoop')}>
-            🔄 Loop Trigger
+            <RotateCw size={13} /> Loop Trigger
           </button>
           <button className="add-step-btn" style={{ color: '#fb923c', borderColor: 'rgba(251,146,60,0.3)' }} onClick={() => addNode('eventTimer')}>
-            ⏱ Timer
+            <Timer size={13} /> Timer
           </button>
           <button className="add-step-btn" style={{ color: '#a78bfa', borderColor: 'rgba(167,139,250,0.3)' }} onClick={() => addNode('eventScheduler')}>
-            📅 Scheduler
+            <Calendar size={13} /> Scheduler
           </button>
           <div style={{ width: '1px', background: 'var(--color-border)', margin: '0 2px' }} />
           {/* Action nodes */}
           <button className="add-step-btn" onClick={() => addNode('action')}>
-            <Plus size={14} /> Action
+            <Target size={14} /> Action
           </button>
           <button className="add-step-btn border-red" onClick={() => addNode('condition')}>
-            <Plus size={14} /> Condition
+            <GitBranch size={14} /> Condition
           </button>
           <button className="add-step-btn text-indigo-400" onClick={() => addNode('loop')}>
-            <Plus size={14} /> Loop
+            <Repeat size={14} /> Loop
           </button>
           <button className="add-step-btn text-orange-400" onClick={() => addNode('code')}>
-            <Plus size={14} /> Code
+            <Code2 size={14} /> Code
           </button>
           <button className="add-step-btn text-pink-400" onClick={() => addNode('aiTask')}>
-            <Plus size={14} /> AI Task
+            <BrainCircuit size={14} /> AI Task
           </button>
           <div style={{ width: '1px', background: 'var(--color-border)', margin: '0 2px' }} />
           {/* Layout button */}
@@ -316,22 +349,38 @@ function VisualBuilderInner({ content, onChange, isTesting, setIsTesting }: Visu
           >
             <LayoutGrid size={13} /> Layout
           </button>
-          <button 
-            className={`add-step-btn btn-test-flow${isRunning ? ' running' : ''}`} 
-            disabled={isRunning}
-            onClick={async () => {
-              setIsRunning(true)
-              setTestLogs([{ level: 'info', message: '▶ Starting workflow test...' }])
-              setIsTesting?.(true)
-              try {
-                await (window as any).electronAPI?.workflow?.test?.(content)
-              } finally {
+          {!isTesting ? (
+            <button 
+              className={`add-step-btn btn-test-flow${isRunning ? ' running' : ''}`} 
+              disabled={isRunning}
+              onClick={async () => {
+                setIsRunning(true)
+                setTestLogs([{ level: 'info', message: 'Starting workflow test...' }])
+                setIsTesting?.(true)
+                try {
+                  await (window as any).electronAPI?.workflow?.test?.(content)
+                } finally {
+                  setIsRunning(false)
+                }
+              }}
+            >
+              {isRunning ? <><Loader2 size={13} className="animate-spin" /> Running...</> : <><Play size={13} /> Test Flow</>}
+            </button>
+          ) : (
+            <button 
+              className="add-step-btn btn-test-flow"
+              style={{ backgroundColor: 'rgba(248, 113, 113, 0.1)', color: '#f87171', borderColor: 'rgba(248, 113, 113, 0.3)' }}
+              onClick={() => {
                 setIsRunning(false)
-              }
-            }}
-          >
-            {isRunning ? '⏳ Running...' : '▶ Test Flow'}
-          </button>
+                setTestLogs(null)
+                setIsTesting?.(false)
+                setActiveNodeId(null)
+                setActiveEdgeId(null)
+              }}
+            >
+              <XCircle size={13} /> Stop Test
+            </button>
+          )}
         </div>
       </div>
 
@@ -339,8 +388,8 @@ function VisualBuilderInner({ content, onChange, isTesting, setIsTesting }: Visu
       <div className="graph-layout">
         <div className="graph-canvas-container" ref={reactFlowWrapper}>
           <ReactFlow
-            nodes={nodes}
-            edges={edges}
+            nodes={nodes.map(n => ({ ...n, className: activeNodeId === n.id ? 'node-active' : '' }))}
+            edges={edges.map(e => ({ ...e, className: activeEdgeId === `${e.source}->${e.target}` || activeEdgeId === e.id ? 'edge-active' : '' }))}
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
@@ -356,6 +405,7 @@ function VisualBuilderInner({ content, onChange, isTesting, setIsTesting }: Visu
             zoomOnScroll={false}
             zoomOnPinch={true}
             selectionOnDrag={false}
+            connectionMode={'loose' as any}
             fitView
           >
             <Background color="#333" gap={16} />
@@ -369,16 +419,16 @@ function VisualBuilderInner({ content, onChange, isTesting, setIsTesting }: Visu
             >
               <div className="context-menu-title">Add Node</div>
               <div style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '4px', marginBottom: '4px', fontSize: '9px', color: '#64748b', padding: '0 8px 4px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Triggers</div>
-              <button onClick={() => addNode('start', screenToFlowPosition({ x: menuPos.x, y: menuPos.y }))} style={{ color: '#34d399' }}>▶ Start</button>
-              <button onClick={() => addNode('eventLoop', screenToFlowPosition({ x: menuPos.x, y: menuPos.y }))} style={{ color: '#22d3ee' }}>🔄 Loop Trigger</button>
-              <button onClick={() => addNode('eventTimer', screenToFlowPosition({ x: menuPos.x, y: menuPos.y }))} style={{ color: '#fb923c' }}>⏱ Timer</button>
-              <button onClick={() => addNode('eventScheduler', screenToFlowPosition({ x: menuPos.x, y: menuPos.y }))} style={{ color: '#a78bfa' }}>📅 Scheduler</button>
+              <button onClick={() => addNode('start', screenToFlowPosition({ x: menuPos.x, y: menuPos.y }))} style={{ color: '#34d399' }}><Zap size={12}/> Start</button>
+              <button onClick={() => addNode('eventLoop', screenToFlowPosition({ x: menuPos.x, y: menuPos.y }))} style={{ color: '#22d3ee' }}><RotateCw size={12}/> Loop Trigger</button>
+              <button onClick={() => addNode('eventTimer', screenToFlowPosition({ x: menuPos.x, y: menuPos.y }))} style={{ color: '#fb923c' }}><Timer size={12}/> Timer</button>
+              <button onClick={() => addNode('eventScheduler', screenToFlowPosition({ x: menuPos.x, y: menuPos.y }))} style={{ color: '#a78bfa' }}><Calendar size={12}/> Scheduler</button>
               <div style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', margin: '4px 0', fontSize: '9px', color: '#64748b', padding: '4px 8px 0', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Actions</div>
-              <button onClick={() => addNode('action', screenToFlowPosition({ x: menuPos.x, y: menuPos.y }))}>🎯 Action</button>
-              <button onClick={() => addNode('condition', screenToFlowPosition({ x: menuPos.x, y: menuPos.y }))} className="text-red-400">🔀 Condition</button>
-              <button onClick={() => addNode('loop', screenToFlowPosition({ x: menuPos.x, y: menuPos.y }))} className="text-indigo-400">🔁 Loop</button>
-              <button onClick={() => addNode('code', screenToFlowPosition({ x: menuPos.x, y: menuPos.y }))} className="text-orange-400">⚡️ Code</button>
-              <button onClick={() => addNode('aiTask', screenToFlowPosition({ x: menuPos.x, y: menuPos.y }))} className="text-pink-400">🧠 AI Task</button>
+              <button onClick={() => addNode('action', screenToFlowPosition({ x: menuPos.x, y: menuPos.y }))}><Target size={12}/> Action</button>
+              <button onClick={() => addNode('condition', screenToFlowPosition({ x: menuPos.x, y: menuPos.y }))} className="text-red-400"><GitBranch size={12}/> Condition</button>
+              <button onClick={() => addNode('loop', screenToFlowPosition({ x: menuPos.x, y: menuPos.y }))} className="text-indigo-400"><Repeat size={12}/> Loop</button>
+              <button onClick={() => addNode('code', screenToFlowPosition({ x: menuPos.x, y: menuPos.y }))} className="text-orange-400"><Code2 size={12}/> Code</button>
+              <button onClick={() => addNode('aiTask', screenToFlowPosition({ x: menuPos.x, y: menuPos.y }))} className="text-pink-400"><BrainCircuit size={12}/> AI Task</button>
             </div>
           )}
         </div>
@@ -387,13 +437,16 @@ function VisualBuilderInner({ content, onChange, isTesting, setIsTesting }: Visu
         {testLogs && (
           <div className="test-log-overlay">
             <div className="test-log-header">
-              <span>🤖 Agent Log</span>
-              <button className="test-log-close" onClick={() => { setTestLogs(null); setIsTesting?.(false) }}>✕</button>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Terminal size={14} /> Agent Log</span>
+              <div>
+                <button className="test-log-close" onClick={() => { setTestLogs(null); setIsTesting?.(false); setActiveNodeId(null); setActiveEdgeId(null); setIsRunning(false) }} title="Stop Testing" style={{ backgroundColor: 'rgba(248, 113, 113, 0.2)', color: '#f87171', padding: '2px 8px', borderRadius: '4px', fontSize: '10px', textTransform: 'uppercase', marginRight: '8px' }}>Stop</button>
+                <button className="test-log-close" onClick={() => { setTestLogs(null); setIsTesting?.(false); setActiveNodeId(null); setActiveEdgeId(null) }}>✕</button>
+              </div>
             </div>
             <div className="test-log-body">
               {testLogs.map((log, i) => (
                 <div key={i} className={`test-log-entry log-${log.level}`}>
-                  <span className="log-icon">{log.level === 'success' ? '✅' : log.level === 'error' ? '❌' : log.level === 'thinking' ? '🤔' : log.level === 'action' ? '→' : 'ℹ'}</span>
+                  <span className="log-icon"><ActivityLogIcon level={log.level} /></span>
                   <span>{log.message}</span>
                 </div>
               ))}

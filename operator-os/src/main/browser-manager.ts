@@ -279,7 +279,7 @@ export class BrowserManager extends EventEmitter {
     // Hide all tabs
     for (const [id, tab] of this.tabs) {
       if (id !== platform) {
-        tab.view.setBounds({ x: -9999, y: -9999, width: 100, height: 100 })
+        tab.view.setBounds({ x: -9999, y: -9999, width: 0, height: 0 })
       }
     }
 
@@ -288,10 +288,10 @@ export class BrowserManager extends EventEmitter {
       if (this.currentViewState === 'studio' ||
           (platform === 'home' && (!tab.url || tab.url === 'about:blank' || tab.url === ''))) {
         // Studio editor open: hide browser behind the React app
-        tab.view.setBounds({ x: -9999, y: -9999, width: 10, height: 10 })
+        tab.view.setBounds({ x: -9999, y: -9999, width: 0, height: 0 })
       } else if (this.currentViewState === 'testing') {
-        // Test mode: node map on left, browser on right half
-        const browserX = this.sidebarWidth + TEST_PANEL_WIDTH
+        // Test mode: sidebar is hidden, node map on left (420px), browser takes the rest
+        const browserX = TEST_PANEL_WIDTH
         const testBrowserWidth = Math.max(100, width - browserX)
         tab.view.setBounds({
           x: browserX,

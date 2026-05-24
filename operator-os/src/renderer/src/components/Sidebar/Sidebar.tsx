@@ -7,13 +7,15 @@ import ActivityFeed from '../ActivityFeed/ActivityFeed'
 import { Recorder } from '../Recorder'
 import { TabInfo, ActivityEvent, ViewType } from '../../App'
 
-const NAV_ITEMS: { id: ViewType; icon: string; label: string }[] = [
-  { id: 'chat',     icon: '💬', label: 'Chat' },
-  { id: 'tasks',    icon: '📋', label: 'Tasks' },
-  { id: 'memory',   icon: '🧠', label: 'Memory' },
-  { id: 'stats',    icon: '📊', label: 'Stats' },
-  { id: 'studio',   icon: '🎥', label: 'Studio' },
-  { id: 'settings', icon: '⚙️', label: 'Settings' },
+import { MessageSquare, ClipboardList, BrainCircuit, BarChart3, Clapperboard, Settings } from 'lucide-react'
+
+const NAV_ITEMS = [
+  { id: 'chat',     icon: MessageSquare, label: 'Chat' },
+  { id: 'tasks',    icon: ClipboardList, label: 'Tasks' },
+  { id: 'memory',   icon: BrainCircuit,  label: 'Memory' },
+  { id: 'stats',    icon: BarChart3,     label: 'Stats' },
+  { id: 'studio',   icon: Clapperboard,  label: 'Studio' },
+  { id: 'settings', icon: Settings,      label: 'Settings' },
 ]
 
 interface Props {
@@ -32,9 +34,11 @@ interface Props {
 
 export default function Sidebar({
   currentView, onViewChange, tabs, loginStatuses,
-  activityEvents, aiStatus, onOpenTab, onTabSwitch, addActivity,
-  isRecording, setIsRecording
+  activityEvents, aiStatus, onOpenTab, onTabSwitch, addActivity, isRecording, setIsRecording
 }: Props) {
+  const activeTab = tabs?.find(t => t.active)
+  const activePlatform = activeTab?.platform || 'linkedin'
+
   return (
     <aside className="sidebar">
       {/* Platform status row */}
@@ -55,28 +59,28 @@ export default function Sidebar({
         )}
         {currentView === 'tasks' && (
           <div className="sidebar-placeholder">
-            <span className="placeholder-icon">📋</span>
+            <ClipboardList size={24} className="placeholder-icon" />
             <span>Task Dashboard is open</span>
           </div>
         )}
         {currentView === 'memory' && (
           <div className="sidebar-placeholder">
-            <span className="placeholder-icon">🧠</span>
+            <BrainCircuit size={24} className="placeholder-icon" />
             <span>Memory system coming soon</span>
           </div>
         )}
         {currentView === 'stats' && (
           <div className="sidebar-placeholder">
-            <span className="placeholder-icon">📊</span>
+            <BarChart3 size={24} className="placeholder-icon" />
             <span>Analytics coming soon</span>
           </div>
         )}
         {currentView === 'studio' && (
-          <Recorder isRecording={isRecording} setIsRecording={setIsRecording} />
+          <Recorder isRecording={isRecording} setIsRecording={setIsRecording} activePlatform={activePlatform} />
         )}
         {currentView === 'settings' && (
           <div className="sidebar-placeholder">
-            <span className="placeholder-icon">⚙️</span>
+            <Settings size={24} className="placeholder-icon" />
             <span>Settings coming soon</span>
           </div>
         )}
@@ -92,7 +96,7 @@ export default function Sidebar({
               onClick={() => onViewChange(item.id)}
               title={item.label}
             >
-              <span className="nav-icon">{item.icon}</span>
+              <span className="nav-icon"><item.icon size={18} /></span>
               <span className="nav-label">{item.label}</span>
             </button>
           ))}

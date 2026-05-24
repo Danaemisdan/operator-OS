@@ -158,7 +158,7 @@ Respond ONLY with this JSON format:
 
     const planExplanation = data.planExplanation || `I will execute the workflow: ${targetSkill.name}`
     this.chatHistory.push({ role: 'assistant', content: planExplanation })
-    this.emit(`💡 **Running Workflow:** ${targetSkill.name}`, 'info')
+    this.emit(`**Running Workflow:** ${targetSkill.name}`, 'info')
 
     // Log the task start
     tasksDB.logTaskStart({
@@ -174,7 +174,7 @@ Respond ONLY with this JSON format:
     if (!view) {
       const err = `Could not open tab for platform: ${targetSkill.platform}`
       tasksDB.logTaskEnd(taskId, { status: 'failed', error: err })
-      return { taskId, reply: `⚠️ ${err}` }
+      return { taskId, reply: err }
     }
 
     // Pre-flight login check
@@ -189,7 +189,7 @@ Respond ONLY with this JSON format:
         if (loginResult.outputs.loginRequired === true || loginResult.outputs.loginRequired === 'true') {
           this.onLoginRequired(targetSkill.platform)
           tasksDB.logTaskEnd(taskId, { status: 'failed', error: 'Login required' })
-          return { taskId, reply: `⚠️ You're not logged into ${targetSkill.platform}. Please log in and try again.` }
+          return { taskId, reply: `You're not logged into ${targetSkill.platform}. Please log in and try again.` }
         }
       } catch {}
     }
@@ -217,7 +217,7 @@ Respond ONLY with this JSON format:
     try {
       const result = await targetSkill.execute(ctx)
       if (result.success) {
-        this.emit(`✓ Workflow completed successfully!`, 'success', targetSkill.platform)
+        this.emit(`Workflow completed successfully!`, 'success', targetSkill.platform)
         tasksDB.logTaskEnd(taskId, { 
           status: 'done', 
           outputs: result.outputs,
@@ -225,14 +225,14 @@ Respond ONLY with this JSON format:
         })
         return { taskId, reply: `Success! Finished running ${targetSkill.name}.` }
       } else {
-        this.emit(`✗ Workflow failed: ${result.error}`, 'error', targetSkill.platform)
+        this.emit(`Workflow failed: ${result.error}`, 'error', targetSkill.platform)
         tasksDB.logTaskEnd(taskId, { status: 'failed', error: result.error })
-        return { taskId, reply: `⚠️ Execution failed: ${result.error}` }
+        return { taskId, reply: `Execution failed: ${result.error}` }
       }
     } catch (e) {
-      this.emit(`✗ Workflow threw an error: ${e}`, 'error', targetSkill.platform)
+      this.emit(`Workflow threw an error: ${e}`, 'error', targetSkill.platform)
       tasksDB.logTaskEnd(taskId, { status: 'failed', error: String(e) })
-      return { taskId, reply: `⚠️ Unexpected error: ${String(e)}` }
+      return { taskId, reply: `Unexpected error: ${String(e)}` }
     }
   }
 

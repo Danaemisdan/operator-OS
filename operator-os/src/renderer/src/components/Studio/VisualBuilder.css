@@ -360,3 +360,29 @@
 .test-log-entry.log-error { color: #f87171; }
 .test-log-entry.log-thinking { color: #a78bfa; }
 .test-log-entry.log-action { color: #60a5fa; }
+
+/* Visual execution simulation styles */
+.node-active {
+  border-color: #a78bfa !important;
+  box-shadow: 0 0 15px rgba(167, 139, 250, 0.6), inset 0 0 10px rgba(167, 139, 250, 0.2) !important;
+  animation: pulse-node 1.5s ease-in-out infinite;
+  z-index: 1000;
+}
+
+@keyframes pulse-node {
+  0%, 100% { box-shadow: 0 0 15px rgba(167, 139, 250, 0.6), inset 0 0 10px rgba(167, 139, 250, 0.2); }
+  50% { box-shadow: 0 0 25px rgba(167, 139, 250, 0.9), inset 0 0 15px rgba(167, 139, 250, 0.4); }
+}
+
+/* Only animate the active edge propagating */
+.edge-active .react-flow__edge-path {
+  stroke: rgba(167, 139, 250, 0.9) !important;
+  stroke-width: 4 !important;
+  animation: flow-edges 1s linear infinite;
+  stroke-dasharray: 8;
+}
+
+@keyframes flow-edges {
+  from { stroke-dashoffset: 100; }
+  to { stroke-dashoffset: 0; }
+}

@@ -180,10 +180,13 @@ export class StepInterpreter {
   private async processOutgoingEdges(outEdges: any[], nodes: any[], edges: any[]): Promise<{ success: boolean, nextId: string | null, error?: string }> {
     if (outEdges.length === 0) return { success: true, nextId: null }
     for (let i = 0; i < outEdges.length - 1; i++) {
+      this.ctx.setActiveEdge?.(outEdges[i].source, outEdges[i].target)
       const result = await this.runSubgraph(nodes, edges, outEdges[i].target)
       if (!result.success) return { success: false, nextId: null, error: result.error }
     }
-    return { success: true, nextId: outEdges[outEdges.length - 1].target }
+    const lastEdge = outEdges[outEdges.length - 1]
+    this.ctx.setActiveEdge?.(lastEdge.source, lastEdge.target)
+    return { success: true, nextId: lastEdge.target }
   }
 
   async runGraph(nodes: any[], edges: any[]): Promise<SkillResult> {
@@ -204,6 +207,7 @@ export class StepInterpreter {
     let steps = 0
 
     while (currentId && steps++ < 200) {
+      this.ctx.setActiveNode?.(currentId)
       const node = nodes.find(n => n.id === currentId)
       if (!node) break
 
@@ -215,7 +219,7 @@ export class StepInterpreter {
         node.type === 'eventScheduler'
       ) {
         // ── Trigger / Start nodes are pass-through during execution ──
-        this.ctx.log(`▶ ${node.type === 'start' ? 'Workflow started' : `Trigger: ${node.type}`}`, 'thinking')
+        this.ctx.log(`${node.type === 'start' ? 'Workflow started' : `Trigger: ${node.type}`}`, 'thinking')
         const outEdges = edges.filter(e => e.source === currentId)
         const edgeRes = await this.processOutgoingEdges(outEdges, nodes, edges)
         if (!edgeRes.success) return { success: false, outputs: this.vars, error: edgeRes.error }
@@ -226,7 +230,7 @@ export class StepInterpreter {
         const delay = parseFloat(d.delay || '0')
         const unit = d.unit || 'seconds'
         const ms = unit === 'hours' ? delay * 3600000 : unit === 'minutes' ? delay * 60000 : delay * 1000
-        this.ctx.log(`⏱ Timer: waiting ${delay} ${unit}...`, 'thinking')
+        this.ctx.log(`Timer: waiting ${delay} ${unit}...`, 'thinking')
         await new Promise(r => setTimeout(r, ms))
         const outEdges = edges.filter(e => e.source === currentId)
         const edgeRes = await this.processOutgoingEdges(outEdges, nodes, edges)
@@ -278,11 +282,11 @@ export class StepInterpreter {
             isTrue = Boolean(new Function(...varKeys, `return (${expr})`).apply(null, varVals))
           }
         } catch (e) {
-          this.ctx.log(`⚠ Condition eval failed: ${String(e)}`, 'error')
+          this.ctx.log(`Condition eval failed: ${String(e)}`, 'error')
           isTrue = false
         }
 
-        this.ctx.log(`⑂ Condition [${conditionType}] → ${isTrue ? 'TRUE ✓' : 'FALSE ✗'}`, 'thinking')
+        this.ctx.log(`Condition [${conditionType}] → ${isTrue ? 'TRUE' : 'FALSE'}`, 'thinking')
 
         const outEdges = edges.filter(e => e.source === currentId && e.sourceHandle === (isTrue ? 'true' : 'false'))
         const edgeRes = await this.processOutgoingEdges(outEdges, nodes, edges)
@@ -299,15 +303,15 @@ export class StepInterpreter {
         const doneEdge = edges.find(e => e.source === currentId && e.sourceHandle === 'done')
 
         if (Array.isArray(arr) && arr.length > 0 && eachEdge) {
-          this.ctx.log(`⟳ Loop over ${arr.length} items from ${arrayVarName}`, 'thinking')
+          this.ctx.log(`Loop over ${arr.length} items from ${arrayVarName}`, 'thinking')
           for (let i = 0; i < arr.length; i++) {
             this.vars[itemVarName] = arr[i]
-            this.ctx.log(`  ↪ Iteration ${i+1}/${arr.length} (${itemVarName})`, 'thinking')
+            this.ctx.log(`  Iteration ${i+1}/${arr.length} (${itemVarName})`, 'thinking')
             const result = await this.runSubgraph(nodes, edges, eachEdge.target)
             if (!result.success) return result
           }
         } else {
-          this.ctx.log(`⟳ Loop skipped (not an array or no items)`, 'thinking')
+          this.ctx.log(`Loop skipped (not an array or no items)`, 'thinking')
         }
 
         const doneEdges = edges.filter(e => e.source === currentId && e.sourceHandle === 'done')
@@ -368,7 +372,7 @@ export class StepInterpreter {
         // ── Navigation ────────────────────────────────────────────────
         case 'navigate': {
           const url = this.interpolate(step.url)
-          log(`→ ${url}`, 'action')
+          log(`Navigating to: ${url}`, 'action')
           await wc.loadURL(url)
           // Wait for page to start rendering
           await this.waitForLoad(wc, 8000)
@@ -505,7 +509,7 @@ export class StepInterpreter {
             return { success: false, outputs: this.vars, error: `Failed to click element at index ${idx}` }
           }
           
-          log(`Clicked element matching "${intent}" ✓`, 'success')
+          log(`Clicked element matching "${intent}"`, 'success')
           await humanWait(300, 700)
           break
         }
@@ -750,7 +754,7 @@ export class StepInterpreter {
                 nodeId,
                 files: [filePath]
               })
-              log(`File set on input ✓`, 'success')
+              log(`File set on input`, 'success')
             } else {
               return { success: false, outputs: this.vars, error: `File input not found: ${sel}` }
             }
@@ -1221,7 +1225,8 @@ export class StepInterpreter {
           log(`Executing AI Task...`, 'thinking')
           
           try {
-            const resultStr = (await ai(prompt, 'text')).trim()
+            const fullPrompt = `You are a precise automation assistant. Complete the following task based on the provided input. Respond ONLY with the requested output. Do not add conversational text, markdown formatting, or explanations.\n\nTask: ${prompt}`;
+            const resultStr = (await ai(fullPrompt, 'text')).trim()
             if (step.output) {
               this.vars[step.output] = resultStr
             }
